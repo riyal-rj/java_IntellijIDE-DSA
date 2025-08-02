@@ -1,5 +1,7 @@
 package LeetcodeProblems.Heap;
 
+import java.util.PriorityQueue;
+
 public class LC_1792 {
     //brute force approach
     /*
@@ -23,6 +25,7 @@ public class LC_1792 {
         int [][] classes = {{1, 2}, {3, 5}, {2,2}};
         int extraStudents = 2;
         System.out.println(maxAverage(classes, extraStudents));
+        System.out.println(maxAverageOptimized(classes, extraStudents));
     }
 
     public static double maxAverage(int [][]classes ,int extraStudents){
@@ -65,4 +68,41 @@ public class LC_1792 {
         return (passRatio + delta)/n;
 
     }
+
+
+    //Using most oprimized using priority queue
+    public static double maxAverageOptimized(int[][] classes, int extraStudents) {
+        int n = classes.length;
+
+        // Max-heap based on gain
+        PriorityQueue<double[]> pq = new PriorityQueue<>((a, b) -> Double.compare(b[0], a[0]));
+
+        for (int i = 0; i < n; i++) {
+            double passRatio = ((double) classes[i][0]) / classes[i][1];
+            double newPassRatio = ((double) (classes[i][0] + 1)) / (classes[i][1] + 1);
+            pq.offer(new double[]{newPassRatio - passRatio, i});
+        }
+
+        while (extraStudents-- > 0) {
+            double[] top = pq.poll();
+            int idx = (int) top[1];
+
+            classes[idx][0]++;
+            classes[idx][1]++;
+
+            double currentRatio = ((double) classes[idx][0]) / classes[idx][1];
+            double newRatio = ((double) (classes[idx][0] + 1)) / (classes[idx][1] + 1);
+            double delta = newRatio - currentRatio;
+
+            pq.offer(new double[]{delta, idx});
+        }
+
+        double average = 0.0;
+        for (int[] cls : classes) {
+            average += ((double) cls[0]) / cls[1];
+        }
+
+        return average / n;
+    }
+
 }
